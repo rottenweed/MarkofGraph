@@ -1,0 +1,2 @@
+git config --global user.email "yhe@vip.sina.com"
+git config --global user.name "He Yong"
