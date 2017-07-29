@@ -35,6 +35,12 @@ class CrossLinkMatrix
         @column_head = Array.new(@state_cnt, nil);
     end
 
+    def add_state
+        @line_head << nil;
+        @column_head << nil;
+        @state_cnt += 1;
+    end
+
     # set a new trans_matrix value
     # if the node existed, refresh the value
     # else, create new node and insert it in the cross link_list
@@ -137,6 +143,23 @@ class CrossLinkMatrix
         end
     end
 
+    # calculate the probability decreasion/increasion by line_list
+    def cal_delta(state_list, state_list_dec, state_list_inc)
+        state_list.size.times {|i|
+            state_list_dec[i] = 0.0;
+            state_list_inc[i] = 0.0;
+        }
+        state_list.size.times {|line|
+            tran_node = @line_head[line];
+            while(tran_node != nil)
+                tran_value = state_list[line] * tran_node.val;
+                state_list_dec[line] += tran_value;
+                state_list_inc[tran_node.column] += tran_value;
+                tran_node = tran_node.right;
+            end
+        }
+    end
+
 end
 
 BEGIN {
@@ -144,17 +167,11 @@ BEGIN {
     print("Described by Graph and Matrix + Cross Link.\n");
 }
 
-a = CrossLinkNode.new(0, 1, 1);
-print("#{a.class}\n");
-print("#{a.respond_to?(:column)}\n");
-print("column=#{a.column}\n");
-
-state2 = Array.new(2, 0);
+state_set = Array.new(2, 0);
 tran_m2 = CrossLinkMatrix.new(2);
 tran_m2.add_trans(0.6, 0, 1);
 tran_m2.add_trans(0.4, 0, 0);
-tran_m2.add_trans(0.7, 1, 0);
-tran_m2.add_trans(0.3, 1, 1);
+tran_m2.add_trans(1.0, 1, 1);
 print("#{tran_m2.state_cnt}, #{tran_m2.trans_cnt}\n");
 
 2.times {|i|
@@ -168,6 +185,22 @@ print("#{tran_m2.state_cnt}, #{tran_m2.trans_cnt}\n");
         print("[#{i}, #{j}]: #{tran_m2.search_in_column(i, j)}, ");
     }
     print("\n");
+}
+
+# calculate state probability
+state_set[0] = 1.0;
+state_set[1] = 0.0;
+state_set_inc = Array.new(2, 0.0);
+state_set_dec = Array.new(2, 0.0);
+
+cal_times = 10;
+cal_times.times {
+    tran_m2.cal_delta(state_set, state_set_dec, state_set_inc);
+    state_set.size.times {|i|
+        state_set[i] += state_set_inc[i];
+        state_set[i] -= state_set_dec[i];
+    }
+    print(state_set,"\n");
 }
 
 END {
