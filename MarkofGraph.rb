@@ -49,11 +49,8 @@ class CrossLinkMatrix
             if(cur_node.column < column)
                 print("OK\n");
             end
-            while(cur_node.column < column) do
-                print("#{column}\n");
-                column -= 1;
+            while((cur_node != nil) && (cur_node.column < column))
                 last_node = cur_node;
-=begin
                 cur_node = cur_node.right;
                 if(cur_node == nil)
                     last_node.right = new_node; # add node in the end
@@ -69,28 +66,24 @@ class CrossLinkMatrix
                         @trans_cnt += 1;
                     end
                 end
-=end
             end
         end
         # insert trans node in column link_list
         if(@column_head[column] == nil)
             @column_head[column] = new_node;
-            @trans_cnt += 1;
         else
             cur_node = @column_head[column];
-            while(cur_node.line < line)
+            while((cur_node != nil) && (cur_node.line < line))
                 last_node = cur_node;
                 cur_node = cur_node.right;
                 if(cur_node == nil)
                     last_node.right = new_node; # add node in the end
-                    @trans_cnt += 1;
-                else    # if the node existed, it has been refresh in line
+                else    # if the node existed, it must have been refresh in line
                     if(cur_node.line > line)    # insert the node
                         last_node.right = new_node;
                         new_node.right = cur_node;
                         new_node.left = last_node;
                         cur_node.left = new_node;
-                        @trans_cnt += 1;
                     end
                 end
             end
