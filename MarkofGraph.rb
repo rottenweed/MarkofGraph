@@ -44,11 +44,13 @@ class CrossLinkMatrix
         if(@line_head[line] == nil)
             @line_head[line] = new_node;
             @trans_cnt += 1;
+        elsif(@line_head[line].column > column)
+            new_node.right = @line_head[line];
+            @line_head[line].left = new_node;
+            @line_head[line] = new_node;
+            @trans_cnt += 1;
         else
             cur_node = @line_head[line];
-            if(cur_node.column < column)
-                print("OK\n");
-            end
             while((cur_node != nil) && (cur_node.column < column))
                 last_node = cur_node;
                 cur_node = cur_node.right;
@@ -71,19 +73,24 @@ class CrossLinkMatrix
         # insert trans node in column link_list
         if(@column_head[column] == nil)
             @column_head[column] = new_node;
+        elsif(@column_head[column].line > line)
+            new_node.down = @column_head[column];
+            @column_head[column].up = new_node;
+            @column_head[column] = new_node;
+            @trans_cnt += 1;
         else
             cur_node = @column_head[column];
             while((cur_node != nil) && (cur_node.line < line))
                 last_node = cur_node;
-                cur_node = cur_node.right;
+                cur_node = cur_node.down;
                 if(cur_node == nil)
-                    last_node.right = new_node; # add node in the end
+                    last_node.down = new_node; # add node in the end
                 else    # if the node existed, it must have been refresh in line
                     if(cur_node.line > line)    # insert the node
-                        last_node.right = new_node;
-                        new_node.right = cur_node;
-                        new_node.left = last_node;
-                        cur_node.left = new_node;
+                        last_node.down = new_node;
+                        new_node.down = cur_node;
+                        new_node.up = last_node;
+                        cur_node.up = new_node;
                     end
                 end
             end
@@ -117,8 +124,8 @@ class CrossLinkMatrix
             # empty node, return 0 as value
             return 0;
         else
-            while((cur_node.line < line) && (cur_node.right != nil))
-                cur_node = cur_node.right;
+            while((cur_node.line < line) && (cur_node.down != nil))
+                cur_node = cur_node.down;
             end
             if(cur_node.line == line)
                 # search success
@@ -144,11 +151,24 @@ print("column=#{a.column}\n");
 
 state2 = Array.new(2, 0);
 tran_m2 = CrossLinkMatrix.new(2);
-tran_m2.add_trans(0.4, 0, 0);
 tran_m2.add_trans(0.6, 0, 1);
-tran_m2.add_trans(0.5, 1, 0);
-tran_m2.add_trans(0.5, 1, 1);
+tran_m2.add_trans(0.4, 0, 0);
+tran_m2.add_trans(0.7, 1, 0);
+tran_m2.add_trans(0.3, 1, 1);
 print("#{tran_m2.state_cnt}, #{tran_m2.trans_cnt}\n");
+
+2.times {|i|
+    2.times {|j|
+        print("[#{i}, #{j}]: #{tran_m2.search_in_line(i, j)}, ");
+    }
+    print("\n");
+}
+2.times {|i|
+    2.times {|j|
+        print("[#{i}, #{j}]: #{tran_m2.search_in_column(i, j)}, ");
+    }
+    print("\n");
+}
 
 END {
     print("Program End.\n");
