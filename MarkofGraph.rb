@@ -4,25 +4,17 @@
 class CrossLinkNode
     attr_accessor(:val);                        # value
     attr_reader(:line, :column);                # position in matrix
-    attr_accessor(:left, :right, :up, :down);   # pointer to neighbor
+    attr_accessor(:right, :down);   # pointer to neighbor
 
     def initialize(val, line, column,
-                   left = nil, right = nil, up = nil, down = nil)
+                   right = nil, down = nil)
         @val = val;
         @line = line;
         @column = column;
-        @left = left;
         @right = right;
-        @up = up;
         @down = down;
     end
 
-    def delete
-        @left.right = @right if(left);
-        @right.left = @left if(right);
-        @up.down = @down if(up);
-        @down.up = @up if(down);
-    end
 end
 
 class CrossLinkMatrix
@@ -52,7 +44,6 @@ class CrossLinkMatrix
             @trans_cnt += 1;
         elsif(@line_head[line].column > column)
             new_node.right = @line_head[line];
-            @line_head[line].left = new_node;
             @line_head[line] = new_node;
             @trans_cnt += 1;
         else
@@ -69,8 +60,6 @@ class CrossLinkMatrix
                     elsif(cur_node.column > column) # insert the node
                         last_node.right = new_node;
                         new_node.right = cur_node;
-                        new_node.left = last_node;
-                        cur_node.left = new_node;
                         @trans_cnt += 1;
                     end
                 end
@@ -81,7 +70,6 @@ class CrossLinkMatrix
             @column_head[column] = new_node;
         elsif(@column_head[column].line > line)
             new_node.down = @column_head[column];
-            @column_head[column].up = new_node;
             @column_head[column] = new_node;
             @trans_cnt += 1;
         else
@@ -95,8 +83,6 @@ class CrossLinkMatrix
                     if(cur_node.line > line)    # insert the node
                         last_node.down = new_node;
                         new_node.down = cur_node;
-                        new_node.up = last_node;
-                        cur_node.up = new_node;
                     end
                 end
             end
